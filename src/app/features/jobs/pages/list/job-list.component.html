@@ -1,0 +1,87 @@
+<div class="bg-white border-bottom shadow-sm mb-4" style="border-top: 4px solid #9d2449;">
+  <div class="container py-3">
+    <div class="d-flex align-items-center gap-3">
+      <img src="/escudo-santa-catarina.svg" alt="Escudo Santa Catarina" width="68" height="82" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
+      <div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge" style="background: #7A0C10; letter-spacing: 1px;">GOBIERNO MUNICIPAL 2024-2027 • MORENA</span>
+          <span class="text-muted small d-none d-md-inline">| Secretaría de Desarrollo Económico</span>
+        </div>
+        <h2 class="mb-0 fw-bold" style="color: #7A0C10; letter-spacing: -0.5px;">Bolsa de Empleo</h2>
+        <p class="mb-0 small" style="color: #6b1a2a;">Santa Catarina, Nuevo León — Vacantes verificadas por el municipio</p>
+      </div>
+      <div class="ms-auto d-none d-md-flex gap-2">
+        <a routerLink="/login" class="btn" style="border-color:#7A0C10; color:#7A0C10; border-width:2px;">Soy empresa</a>
+        <a routerLink="/register-company" class="btn text-white" style="background:#7A0C10;">Publicar empleo</a>
+      </div>
+    </div>
+    <div class="d-flex d-md-none gap-2 mt-3">
+      <a routerLink="/login" class="btn flex-fill" style="border:2px solid #7A0C10; color:#7A0C10;">Soy empresa</a>
+      <a routerLink="/register-company" class="btn text-white flex-fill" style="background:#7A0C10;">Publicar</a>
+    </div>
+  </div>
+</div>
+
+<div class="container pb-4">
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <i class="bi bi-shield-check text-success"></i>
+    <small class="text-muted">Solo empresas verificadas por el Municipio. El Ayuntamiento no interviene en la contratación.</small>
+  </div>
+
+  <div class="card p-3 mb-4 border-0 shadow-sm" style="border-left: 4px solid #7A0C10 !important;">
+    <div class="row g-2">
+      <div class="col-md-4"><input class="form-control" placeholder="Buscar: título, descripción" [(ngModel)]="q" (keyup.enter)="onSearch()"></div>
+      <div class="col-md-2"><input class="form-control" placeholder="Categoría" [(ngModel)]="categoria" (keyup.enter)="onSearch()"></div>
+      <div class="col-md-2"><input class="form-control" placeholder="Colonia" [(ngModel)]="colonia" (keyup.enter)="onSearch()"></div>
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="tipoContrato">
+          <option value="">Tipo contrato</option>
+          <option value="TIEMPO_COMPLETO">Tiempo completo</option>
+          <option value="MEDIO_TIEMPO">Medio tiempo</option>
+          <option value="BECA">Beca</option>
+          <option value="TEMPORAL">Temporal</option>
+          <option value="POR_HONORARIOS">Por honorarios</option>
+        </select>
+      </div>
+      <div class="col-md-2"><input type="number" min="0" class="form-control" placeholder="Sueldo mín." [(ngModel)]="sueldoMin" (keyup.enter)="onSearch()"></div>
+    </div>
+    <div class="row g-2 mt-2">
+      <div class="col-md-3"><button class="btn w-100 text-white" style="background:#7A0C10;" (click)="onSearch()" [disabled]="loading">Buscar</button></div>
+      <div class="col-md-3"><button class="btn w-100 btn-outline-secondary" (click)="clearFilters()" [disabled]="loading">Limpiar filtros</button></div>
+      <div class="col-md-6 text-end"><a routerLink="/register-company" class="btn" style="border-color:#7A0C10; color:#7A0C10; border-width:2px;" >Registrar empresa</a></div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5"><div class="spinner-border"></div></div>
+
+  <div *ngIf="!loading && data.length===0" class="text-center py-5 text-muted">
+    <i class="bi bi-briefcase" style="font-size:48px"></i>
+    <p class="mt-3">No hay vacantes publicadas. Vuelve pronto.</p>
+  </div>
+
+  <div class="row g-4" *ngIf="!loading">
+    <div class="col-md-4" *ngFor="let j of data">
+      <div class="card h-100 shadow-sm border-0" style="border-top: 3px solid #9d2449 !important;">
+        <div class="card-body">
+          <div class="d-flex gap-1 mb-2">
+            <span class="badge" style="background:#7A0C10;">{{j.categoria}}</span>
+            <span class="badge bg-light text-dark border">{{j.tipoContrato}}</span>
+          </div>
+          <h5 class="card-title mt-2" style="color:#7A0C10;">{{j.titulo}}</h5>
+          <p class="card-text text-muted small" style="height:60px; overflow:hidden">{{j.descripcion}}</p>
+          <p class="mb-1 fw-semibold" *ngIf="j.sueldoMin || j.sueldoMax" style="color:#7A0C10;"><i class="bi bi-cash"></i> ${{j.sueldoMin || 0}} - ${{j.sueldoMax || 0}} MXN</p>
+          <p class="small text-muted"><i class="bi bi-geo-alt"></i> {{j.colonia || j.company?.colonia || 'Santa Catarina'}}, Santa Catarina NL | Cierre: {{j.fechaCierre | date}}</p>
+        </div>
+        <div class="card-footer bg-white border-0 pt-0">
+          <a [routerLink]="['/jobs', j.id]" class="btn w-100 text-white" style="background:#7A0C10;">Ver detalle y postularse <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center gap-2 mt-4" *ngIf="total>limit">
+    <button class="btn btn-outline-secondary" [disabled]="page<=1" (click)="load(page-1)">Anterior</button>
+    <span class="align-self-center">Página {{page}} / {{ (total/limit | number:'1.0-0') }}</span>
+    <button class="btn btn-outline-secondary" [disabled]="page*limit>=total" (click)="load(page+1)">Siguiente</button>
+  </div>
+</div>

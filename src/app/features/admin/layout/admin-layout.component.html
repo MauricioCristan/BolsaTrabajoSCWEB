@@ -1,0 +1,224 @@
+<!-- TOP BAR - Morena -->
+<nav class="navbar navbar-dark border-bottom sticky-top" style="background: #7A0C10;">
+  <div class="container-fluid gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <!-- Mobile: opens offcanvas -->
+      <button
+        class="btn btn-outline-light btn-sm d-md-none"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#adminSidebarOffcanvas"
+        aria-controls="adminSidebarOffcanvas"
+        [attr.aria-label]="'openMenu' | t:'layout'"
+      >
+        <i class="bi bi-list"></i>
+      </button>
+
+      <!-- Desktop: collapses sidebar -->
+      <button
+        class="btn btn-outline-light btn-sm d-none d-md-inline-flex"
+        type="button"
+        (click)="toggleSidebar()"
+        [attr.aria-expanded]="!sidebarCollapsed"
+        [attr.aria-label]="'toggleSidebar' | t:'layout'"
+      >
+        <i class="bi" [ngClass]="sidebarCollapsed ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'"></i>
+      </button>
+
+      <a class="navbar-brand fw-semibold m-0 d-flex align-items-center gap-2" [routerLink]="ADMIN_ROUTES.ROOT.COMMANDS">
+        <img src="/escudo-santa-catarina.svg" alt="SC" width="32" height="38" style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));">
+        <span class="d-none d-md-inline" style="letter-spacing: -0.5px;">Santa Catarina <small class="fw-normal opacity-75">Empleos</small></span>
+      </a>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <div class="dropdown">
+        <button
+          class="btn btn-outline-light btn-sm dropdown-toggle d-inline-flex align-items-center gap-2"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="bi bi-person-circle"></i>
+          <span>{{ currentUsername() || ('menu.label' | t:'layout') }}</span>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+          <li><h6 class="dropdown-header">{{ 'language' | t:'layout' }}</h6></li>
+          <li>
+            <button class="dropdown-item d-flex justify-content-between align-items-center" (click)="setLanguage('es')">
+              <span>{{ 'lang.es' | t:'layout' }}</span>
+              @if (i18n.lang() === 'es') {
+                <i class="bi bi-check2"></i>
+              }
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item d-flex justify-content-between align-items-center" (click)="setLanguage('en')">
+              <span>{{ 'lang.en' | t:'layout' }}</span>
+              @if (i18n.lang() === 'en') {
+                <i class="bi bi-check2"></i>
+              }
+            </button>
+          </li>
+
+          <li><hr class="dropdown-divider" /></li>
+          <li>
+            <button class="dropdown-item text-danger d-flex align-items-center gap-2" (click)="logout()" [disabled]="loggingOut">
+              @if (loggingOut) {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+              } @else {
+                <i class="bi bi-box-arrow-right"></i>
+              }
+              <span>{{ 'logout' | t:'layout' }}</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE SIDEBAR (OFFCANVAS) -->
+<div
+  class="offcanvas offcanvas-start sidebar-morena"
+  tabindex="-1"
+  id="adminSidebarOffcanvas"
+  aria-labelledby="adminSidebarOffcanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h6 class="offcanvas-title fw-semibold" id="adminSidebarOffcanvasLabel">{{ 'adminSection' | t:'layout' }}</h6>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" [attr.aria-label]="'close' | t:'layout'"></button>
+  </div>
+
+  <div class="offcanvas-body p-0">
+    <div class="list-group list-group-flush">
+      @if (canReadUsers()) {
+        <a
+          class="list-group-item list-group-item-action"
+          [routerLink]="ADMIN_ROUTES.USERS.LIST.COMMANDS"
+          routerLinkActive="active"
+          data-bs-dismiss="offcanvas"
+        >
+          <i class="bi bi-people me-2"></i>{{ 'users' | t:'layout' }}
+        </a>
+      }
+
+      @if (canReadRoles()) {
+        <a
+          class="list-group-item list-group-item-action"
+          [routerLink]="ADMIN_ROUTES.ROLES.LIST.COMMANDS"
+          routerLinkActive="active"
+          data-bs-dismiss="offcanvas"
+        >
+          <i class="bi bi-shield-lock me-2"></i>{{ 'roles' | t:'layout' }}
+        </a>
+      }
+
+      @if (canReadSettings()) {
+        <a
+          class="list-group-item list-group-item-action"
+          [routerLink]="ADMIN_ROUTES.SETTINGS.COMMANDS"
+          routerLinkActive="active"
+          data-bs-dismiss="offcanvas"
+        >
+          <i class="bi bi-gear me-2"></i>{{ 'settings' | t:'layout' }}
+        </a>
+      }
+
+      <a
+        class="list-group-item list-group-item-action"
+        [routerLink]="ADMIN_ROUTES.JOBS.LIST.COMMANDS"
+        routerLinkActive="active"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="bi bi-briefcase me-2"></i>Empleos SC
+      </a>
+
+      @if (isEmpresa()) {
+        <a
+          class="list-group-item list-group-item-action"
+          routerLink="/admin/empleos/perfil"
+          routerLinkActive="active"
+          data-bs-dismiss="offcanvas"
+        >
+          <i class="bi bi-building me-2"></i>Mi empresa
+        </a>
+      }
+
+      @if (canModerate()) {
+        <a class="list-group-item list-group-item-action" routerLink="/admin/empresas" routerLinkActive="active" data-bs-dismiss="offcanvas"><i class="bi bi-building me-2"></i>Empresas</a>
+        <a
+          class="list-group-item list-group-item-action"
+          [routerLink]="ADMIN_ROUTES.MODERATION.COMMANDS"
+          routerLinkActive="active"
+          data-bs-dismiss="offcanvas"
+        >
+          <i class="bi bi-shield-check me-2"></i>Moderación
+        </a>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- DESKTOP SHELL -->
+<div class="admin-shell d-flex">
+  <!-- DESKTOP SIDEBAR -->
+  <aside class="admin-sidebar d-none d-md-flex sidebar-morena" [class.is-collapsed]="sidebarCollapsed">
+    <div class="admin-sidebar-inner">
+      <div class="text-muted small mb-2 sidebar-title">{{ 'adminSection' | t:'layout' }}</div>
+
+      <div class="list-group list-group-flush">
+        @if (canReadUsers()) {
+          <a class="list-group-item list-group-item-action" [routerLink]="ADMIN_ROUTES.USERS.LIST.COMMANDS" routerLinkActive="active">
+            <i class="bi bi-people"></i>
+            <span class="sidebar-text">{{ 'users' | t:'layout' }}</span>
+          </a>
+        }
+
+        @if (canReadRoles()) {
+          <a class="list-group-item list-group-item-action" [routerLink]="ADMIN_ROUTES.ROLES.LIST.COMMANDS" routerLinkActive="active">
+            <i class="bi bi-shield-lock"></i>
+            <span class="sidebar-text">{{ 'roles' | t:'layout' }}</span>
+          </a>
+        }
+
+        @if (canReadSettings()) {
+          <a class="list-group-item list-group-item-action" [routerLink]="ADMIN_ROUTES.SETTINGS.COMMANDS" routerLinkActive="active">
+            <i class="bi bi-gear"></i>
+            <span class="sidebar-text">{{ 'settings' | t:'layout' }}</span>
+          </a>
+        }
+
+        <a class="list-group-item list-group-item-action" [routerLink]="ADMIN_ROUTES.JOBS.LIST.COMMANDS" routerLinkActive="active">
+          <i class="bi bi-briefcase"></i>
+          <span class="sidebar-text">Empleos SC</span>
+        </a>
+
+        @if (isEmpresa()) {
+          <a class="list-group-item list-group-item-action" routerLink="/admin/empleos/perfil" routerLinkActive="active">
+            <i class="bi bi-building"></i>
+            <span class="sidebar-text">Mi empresa</span>
+          </a>
+        }
+
+        @if (canModerate()) {
+          <a class="list-group-item list-group-item-action" routerLink="/admin/empresas" routerLinkActive="active"><i class="bi bi-building"></i><span class="sidebar-text">Empresas</span></a>
+          <a class="list-group-item list-group-item-action" [routerLink]="ADMIN_ROUTES.MODERATION.COMMANDS" routerLinkActive="active">
+            <i class="bi bi-shield-check"></i>
+            <span class="sidebar-text">Moderación</span>
+          </a>
+        }
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="admin-content flex-grow-1">
+    <div class="p-4">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
+
+

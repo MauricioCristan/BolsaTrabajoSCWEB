@@ -1,0 +1,34 @@
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h4>Empresas</h4><p class="text-muted mb-0">Consulta las empresas registradas y actualiza sus datos.</p></div>
+  <a class="btn btn-outline-secondary align-self-start" routerLink="/admin/moderation">Verificar empresas en moderación</a>
+</div>
+@if (error) { <div class="alert alert-danger" role="alert">{{ error }}</div> }
+@if (draft; as company) {
+  <form class="card card-body mb-3" (ngSubmit)="save()">
+    <h5>Editar empresa</h5>
+    <div class="row g-3">
+      <div class="col-md-6"><label for="company-name" class="form-label">Nombre *</label><input id="company-name" class="form-control" name="nombre" [(ngModel)]="company.nombre" required maxlength="120" /></div>
+      <div class="col-md-6"><label for="company-rfc" class="form-label">RFC</label><input id="company-rfc" class="form-control" [value]="company.rfc || ''" readonly /></div>
+      <div class="col-md-6"><label for="company-colonia" class="form-label">Colonia *</label><input id="company-colonia" class="form-control" name="colonia" [(ngModel)]="company.colonia" required maxlength="120" /></div>
+      <div class="col-md-6"><label for="company-phone" class="form-label">Teléfono</label><input id="company-phone" class="form-control" name="telefono" [(ngModel)]="company.telefono" maxlength="30" /></div>
+      <div class="col-12"><label for="company-description" class="form-label">Descripción</label><textarea id="company-description" class="form-control" name="descripcion" [(ngModel)]="company.descripcion"></textarea></div>
+      <div class="col-12 d-flex gap-2"><button class="btn btn-primary" [disabled]="saving">Guardar empresa</button><button type="button" class="btn btn-outline-secondary" (click)="draft = null" [disabled]="saving">Cancelar</button></div>
+    </div>
+  </form>
+}
+<div class="card card-body">
+  <form class="row g-2 align-items-end mb-3" (ngSubmit)="load()">
+    <div class="col-md-6"><label for="companies-q" class="form-label">Buscar empresa</label><input id="companies-q" class="form-control" name="q" [(ngModel)]="q" placeholder="Nombre o colonia" /></div>
+    <div class="col-md-3"><label for="companies-status" class="form-label">Verificación</label><select id="companies-status" class="form-select" name="verified" [(ngModel)]="verified"><option value="">Todas</option><option value="true">Verificadas</option><option value="false">Sin verificar</option></select></div>
+    <div class="col-md-3 d-flex gap-2"><button class="btn btn-outline-primary" [disabled]="loading">Buscar</button><button type="button" class="btn btn-outline-secondary" (click)="q = ''; verified = ''; load()" [disabled]="loading">Limpiar</button></div>
+  </form>
+  <div class="table-responsive"><table class="table align-middle" style="min-width: 800px;">
+    <thead><tr><th>Empresa</th><th>RFC</th><th>Colonia</th><th>Teléfono</th><th>Verificación</th><th>Acciones</th></tr></thead>
+    <tbody>
+      @for (company of rows; track company.id) {
+        <tr><td>{{ company.nombre }}</td><td>{{ company.rfc || '—' }}</td><td>{{ company.colonia }}</td><td>{{ company.telefono || '—' }}</td><td><span class="badge" [class.bg-success]="company.verificada" [class.bg-secondary]="!company.verificada">{{ company.verificada ? 'Verificada' : (company.rejectionReason ? 'Rechazada' : 'Pendiente') }}</span>@if (company.rejectionReason) { <div class="small text-muted">{{ company.rejectionReason }}</div> }</td><td><button class="btn btn-sm btn-outline-primary" (click)="edit(company)">Editar</button></td></tr>
+      } @empty { <tr><td colspan="6" class="text-center text-muted">{{ loading ? 'Cargando empresas…' : 'No hay empresas que coincidan.' }}</td></tr> }
+    </tbody>
+  </table></div>
+  <div class="d-flex justify-content-between align-items-center"><small>Página {{ page }} de {{ totalPages }} — {{ total }} empresas</small><div class="d-flex gap-2"><button class="btn btn-sm btn-outline-secondary" (click)="load(page - 1)" [disabled]="loading || page <= 1">Anterior</button><button class="btn btn-sm btn-outline-secondary" (click)="load(page + 1)" [disabled]="loading || page >= totalPages">Siguiente</button></div></div>
+</div>

@@ -1,0 +1,71 @@
+<div class="container py-4">
+  <h2>Moderación - Santa Catarina</h2>
+  <p class="text-muted">Verifica empresas y revisa las vacantes antes de publicarlas.</p>
+  <button class="btn btn-outline-secondary mb-3" (click)="load()">Actualizar pendientes</button>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Empresas pendientes ({{companyPage.total}})</span>
+          <small class="text-muted">Página {{companyPage.page}}/{{totalPages(companyPage.total, companyPage.limit)}}</small>
+        </div>
+        <div class="card-body" style="max-height:520px; overflow:auto">
+          @if (companyError) { <div class="alert alert-danger" role="alert">{{ companyError }}</div> }
+          @if (!companyError && companies.length===0) { <div class="text-muted text-center py-3">{{ loading ? 'Cargando…' : 'No hay empresas pendientes' }}</div> }
+          @for (c of companies; track c.id) {
+            <div class="border-bottom py-3">
+              <strong>{{c.nombre}}</strong> <span class="badge bg-warning text-dark ms-2">{{c.rfc}}</span>
+              <div class="small text-muted mt-1">
+                <div><i class="bi bi-geo-alt me-1"></i>Col. {{c.colonia}} @if(c.telefono){ • {{c.telefono}} }</div>
+                @if(c.descripcion){ <div class="mt-1">{{c.descripcion | slice:0:120}}</div> }
+                @if(c.rejectionReason){ <div class="text-danger small">Rechazo previo: {{c.rejectionReason}}</div> }
+              </div>
+              <div class="mt-2 d-flex gap-2">
+                <button class="btn btn-sm text-white" style="background:#7A0C10;" (click)="verifyCompany(c.id, true)" [disabled]="processingId===c.id">Verificar</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="verifyCompany(c.id, false)" [disabled]="processingId===c.id">Rechazar</button>
+              </div>
+            </div>
+          }
+          <div class="d-flex justify-content-between mt-3">
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadCompanies(companyPage.page-1)" [disabled]="companyPage.page<=1">Anterior</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadCompanies(companyPage.page+1)" [disabled]="companyPage.page>=totalPages(companyPage.total, companyPage.limit)">Siguiente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Vacantes pendientes ({{jobPage.total}})</span>
+          <small class="text-muted">Página {{jobPage.page}}/{{totalPages(jobPage.total, jobPage.limit)}}</small>
+        </div>
+        <div class="card-body" style="max-height:520px; overflow:auto">
+          @if (jobError) { <div class="alert alert-danger" role="alert">{{ jobError }}</div> }
+          @if (!jobError && jobs.length===0) { <div class="text-muted text-center py-3">{{ loading ? 'Cargando…' : 'No hay vacantes pendientes' }}</div> }
+          @for (j of jobs; track j.id) {
+            <div class="border-bottom py-3">
+              <strong>{{j.titulo}}</strong> <small class="text-muted ms-2">{{j.categoria}} • {{contractLabel(j.tipoContrato)}}</small>
+              <div class="small text-muted">{{ j.companyName || 'Empresa sin nombre disponible' }}</div>
+              <div class="small text-muted">{{salaryLabel(j.sueldoMin, j.sueldoMax)}} • Cierre: {{j.fechaCierre | date:'dd/MM/yyyy':'UTC'}}</div>
+              @if (isExpired(j.fechaCierre)) { <div class="alert alert-warning py-2">Vacante vencida. Actualiza su fecha de cierre desde Empleos SC antes de publicarla.</div> }
+              <div class="small mt-1"><i class="bi bi-geo-alt me-1"></i>{{direccionCompleta(j)}}</div>
+              @if(j.referencias){ <div class="small text-muted">Ref: {{j.referencias}}</div> }
+              <div class="small mt-1">Contacto: @if(j.contactoEmail){<span class="me-2">{{j.contactoEmail}}</span>} @if(j.contactoTel){<span class="me-2">{{j.contactoTel}}</span>} @if(j.contactoWhatsapp){<span>{{j.contactoWhatsapp}}</span>}</div>
+              <p class="small mb-2 mt-1">{{j.descripcion | slice:0:160}}...</p>
+              @if(j.rejectionReason){ <div class="small text-danger mb-1">Rechazo previo: {{j.rejectionReason}}</div> }
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-success" (click)="publishJob(j.id, 'PUBLICADA')" [disabled]="!!processingId || isExpired(j.fechaCierre)">Publicar</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="publishJob(j.id, 'RECHAZADA')" [disabled]="processingId===j.id">Rechazar</button>
+              </div>
+            </div>
+          }
+          <div class="d-flex justify-content-between mt-3">
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadJobs(jobPage.page-1)" [disabled]="jobPage.page<=1">Anterior</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadJobs(jobPage.page+1)" [disabled]="jobPage.page>=totalPages(jobPage.total, jobPage.limit)">Siguiente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

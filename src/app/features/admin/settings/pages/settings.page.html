@@ -1,0 +1,130 @@
+﻿<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h4 class="mb-0">{{ 'title' | t:'settings' }}</h4>
+    <small class="text-muted">{{ 'subtitle' | t:'settings' }}</small>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary" (click)="load()" [disabled]="loading || saving">
+      <i class="bi bi-arrow-clockwise me-1"></i>{{ 'reload' | t:'settings' }}
+    </button>
+
+    @if (canUpdateSettings) {
+      <button
+        class="btn btn-outline-danger"
+        (click)="resetChanges()"
+        [disabled]="!hasChanges || loading || saving"
+      >
+        {{ 'discard' | t:'settings' }}
+      </button>
+    }
+
+    @if (canUpdateSettings) {
+      <button class="btn btn-primary" (click)="save()" [disabled]="!hasChanges || loading || saving">
+        @if (saving) {
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        }
+        {{ 'save' | t:'settings' }} {{ hasChanges ? '(' + dirtyCount + ')' : '' }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (backendError) {
+  <div class="alert alert-danger py-2">{{ backendError }}</div>
+}
+<div class="alert alert-info">Configura el correo de soporte, el remitente y la URL pública con los datos reales del municipio antes de publicar el sitio. El envío requiere credenciales SMTP válidas configuradas en el servidor.</div>
+@if (successMessage) {
+  <div class="alert alert-success py-2">{{ successMessage }}</div>
+}
+
+@if (loading) {
+  <div class="card shadow-sm">
+    <div class="card-body d-flex align-items-center">
+      <span class="spinner-border spinner-border-sm me-2"></span>
+      {{ 'loading' | t:'settings' }}
+    </div>
+  </div>
+}
+
+@if (!loading) {
+  @for (group of groupedRows; track group.section) {
+    <div class="card shadow-sm mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>{{ group.section | t:'settings' }}</strong>
+        <small class="text-muted">{{ group.rows.length }} item(s)</small>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 settings-table">
+            <thead>
+              <tr>
+                <th class="col-description">{{ 'description' | t:'settings' }}</th>
+                <th class="col-value">{{ 'value' | t:'settings' }}</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (item of group.rows; track trackByKey($index, item)) {
+                <tr>
+                  <td>
+                    <div>{{ item.description || '-' }}</div>
+                    @if (!item.editable) {
+                      <small class="text-muted">{{ 'notEditable' | t:'settings' }}</small>
+                    }
+                  </td>
+
+                  <td>
+                    @switch (item.inputType) {
+                      @case ('boolean') {
+                        <div class="form-check form-switch m-0">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [checked]="isBooleanTrue(draftValues[item.key])"
+                            [disabled]="!item.editable || !canUpdateSettings || saving"
+                            (change)="onBooleanChange(item.key, $any($event.target).checked)"
+                          />
+                          <label class="form-check-label text-muted ms-2">
+                            {{ isBooleanTrue(draftValues[item.key]) ? 'true' : 'false' }}
+                          </label>
+                        </div>
+                      }
+
+                      @case ('number') {
+                        <input
+                          type="number"
+                          class="form-control"
+                          [ngModel]="draftValues[item.key]"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="onValueChange(item.key, $event)"
+                          [disabled]="!item.editable || !canUpdateSettings || saving"
+                        />
+                      }
+
+                      @default {
+                        <input
+                          type="text"
+                          class="form-control"
+                          [ngModel]="draftValues[item.key]"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="onValueChange(item.key, $event)"
+                          [disabled]="!item.editable || !canUpdateSettings || saving"
+                        />
+                      }
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (groupedRows.length === 0) {
+    <div class="alert alert-light border">{{ 'empty' | t:'settings' }}</div>
+  }
+}

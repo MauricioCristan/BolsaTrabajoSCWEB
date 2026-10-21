@@ -1,0 +1,183 @@
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h4 class="mb-0">{{ isEdit ? 'Editar empleo' : 'Nuevo empleo' }}</h4>
+    <small class="text-muted">
+      Completa los datos y revisa el estado de la vacante en Empleos SC
+      @if (currentStatus) { — Estado actual: <span class="badge bg-secondary">{{ currentStatus }}</span> }
+    </small>
+  </div>
+  <button class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="bi bi-arrow-left me-1"></i>Volver
+  </button>
+</div>
+
+@if (loading) {
+  <div class="card">
+    <div class="card-body text-center py-5">
+      <span class="spinner-border" role="status"></span>
+    </div>
+  </div>
+} @else {
+  <div class="card">
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+        @if (isAdmin && !isEdit) {
+          <div class="col-12">
+            <label for="company-search" class="form-label">Buscar empresa verificada</label>
+            <div class="input-group mb-2">
+              <input id="company-search" #companySearch class="form-control" placeholder="Nombre de la empresa" (keyup.enter)="searchCompanies(companySearch.value); $event.preventDefault()" />
+              <button type="button" class="btn btn-outline-secondary" (click)="searchCompanies(companySearch.value)" [disabled]="loadingCompanies">Buscar empresa</button>
+            </div>
+            <label for="job-company" class="form-label">Empresa propietaria *</label>
+            <select id="job-company" class="form-select" formControlName="companyId">
+              <option value="">Selecciona una empresa</option>
+              @for (company of companies; track company.id) { <option [value]="company.id">{{ company.nombre }} — {{ company.colonia }}</option> }
+            </select>
+            @if (loadingCompanies) { <small>Cargando empresas…</small> }
+            @if (!loadingCompanies && companies.length === 0) { <small class="text-muted">No hay empresas verificadas que coincidan. Revisa la sección Empresas.</small> }
+            @if (companies.length < companyTotal) { <button type="button" class="btn btn-link" (click)="searchCompanies(companyQuery, companyPage + 1)" [disabled]="loadingCompanies">Cargar más empresas</button> }
+            @if (form.controls.companyId.touched && form.controls.companyId.invalid) { <small class="text-danger">Selecciona la empresa propietaria.</small> }
+          </div>
+        }
+        <div class="col-md-8">
+          <label class="form-label">Título *</label>
+          <input class="form-control" formControlName="titulo" placeholder="Ej. Cajero, Operador de producción" />
+          @if (form.controls.titulo.invalid && form.controls.titulo.touched) {
+            <small class="text-danger">El título es requerido (máx. 120 caracteres)</small>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Categoría *</label>
+          <input class="form-control" formControlName="categoria" placeholder="Comercio, Industria, Servicios" />
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Descripción *</label>
+          <textarea class="form-control" formControlName="descripcion" rows="4" placeholder="Actividades, requisitos, horario, prestaciones..."></textarea>
+          @if (form.controls.descripcion.invalid && form.controls.descripcion.touched) {
+            <small class="text-danger">La descripción es requerida</small>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Tipo de contrato *</label>
+          <select class="form-select" formControlName="tipoContrato">
+            <option value="TIEMPO_COMPLETO">Tiempo completo</option>
+            <option value="MEDIO_TIEMPO">Medio tiempo</option>
+            <option value="BECA">Beca</option>
+            <option value="TEMPORAL">Temporal</option>
+            <option value="POR_HONORARIOS">Por honorarios</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Sueldo mín.</label>
+          <input type="number" min="0" class="form-control" formControlName="sueldoMin" />
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Sueldo máx.</label>
+          <input type="number" min="0" class="form-control" formControlName="sueldoMax" />
+        </div>
+        @if (form.errors && form.errors['sueldoRange']) {
+          <div class="col-12"><small class="text-danger">{{ form.errors['sueldoRange'] }}</small></div>
+        }
+
+        <div class="col-md-4">
+          <label class="form-label">Fecha de cierre *</label>
+          <input type="date" class="form-control" formControlName="fechaCierre" [min]="minFechaCierre" />
+          @if (form.controls.fechaCierre.invalid && form.controls.fechaCierre.touched) {
+            <small class="text-danger">
+              @if (form.controls.fechaCierre.errors?.['fechaMin']) { La fecha debe ser al menos mañana }
+              @else { La fecha de cierre es requerida }
+            </small>
+          }
+        </div>
+
+        <div class="col-12">
+          <hr>
+          <h6 class="mb-2"><i class="bi bi-geo-alt me-1"></i>Ubicación del empleo</h6>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Calle *</label>
+          <input class="form-control" formControlName="calle" placeholder="Ej. Av. México, Calle Zaragoza" />
+          @if (form.controls.calle.invalid && form.controls.calle.touched) {
+            <small class="text-danger">La calle es requerida</small>
+          }
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Número exterior *</label>
+          <input class="form-control" formControlName="numeroExterior" placeholder="Ej. 120, KM 2.5, S/N" />
+          @if (form.controls.numeroExterior.invalid && form.controls.numeroExterior.touched) {
+            <small class="text-danger">Requerido</small>
+          }
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Número interior <span class="text-muted">(opcional)</span></label>
+          <input class="form-control" formControlName="numeroInterior" placeholder="Ej. Int. 4, Local 7" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Colonia *</label>
+          <input class="form-control" formControlName="colonia" placeholder="Ej. Jardines de Santa Catarina" />
+          @if (form.controls.colonia.invalid && form.controls.colonia.touched) {
+            <small class="text-danger">La colonia es requerida</small>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Código postal <span class="text-muted">(opcional)</span></label>
+          <input class="form-control" formControlName="codigoPostal" placeholder="66350" maxlength="5" />
+          @if (form.controls.codigoPostal.invalid && form.controls.codigoPostal.touched) {
+            <small class="text-danger">Debe ser de 5 dígitos</small>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Referencias <span class="text-muted">(opcional)</span></label>
+          <input class="form-control" formControlName="referencias" placeholder="Ej. A un costado del OXXO, frente al parque" />
+        </div>
+
+        <div class="col-12">
+          <hr>
+          <h6 class="mb-2">Contacto para postulaciones <span class="text-muted small">(al menos uno)</span></h6>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label"><i class="bi bi-envelope me-1"></i>Email</label>
+          <input type="email" class="form-control" formControlName="contactoEmail" placeholder="rh@tuempresa.com" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"><i class="bi bi-telephone me-1"></i>Teléfono</label>
+          <input class="form-control" formControlName="contactoTel" placeholder="81 1234 5678" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"><i class="bi bi-whatsapp me-1"></i>WhatsApp</label>
+          <input class="form-control" formControlName="contactoWhatsapp" placeholder="8112345678" />
+        </div>
+
+        @if (errorMsg) {
+          <div class="col-12">
+            <div class="alert alert-danger mb-0">{{ errorMsg }}</div>
+          </div>
+        }
+
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn text-white px-4" style="background:#7A0C10;" [disabled]="saving">
+            @if (saving) {
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            }
+            {{ isEdit ? 'Guardar cambios' : 'Crear empleo' }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="cancel()" [disabled]="saving">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

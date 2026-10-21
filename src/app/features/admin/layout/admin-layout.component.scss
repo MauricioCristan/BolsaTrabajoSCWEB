@@ -1,0 +1,142 @@
+:host {
+    display: block;
+  }
+  
+  /* Whole app area below navbar */
+  .admin-shell {
+    min-height: calc(100vh - 56px); /* navbar height */
+  }
+  
+  /* Sidebar (desktop) */
+  .admin-sidebar {
+    width: 260px;
+    transition: width 180ms ease;
+    min-height: calc(100vh - 56px);
+  }
+  
+  .admin-sidebar-inner {
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .admin-sidebar .list-group-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .admin-sidebar .list-group-item i {
+    font-size: 1.1rem;
+  }
+  
+  /* Collapse behavior (desktop) */
+  .admin-sidebar.is-collapsed {
+    width: 76px;
+  }
+  
+  .admin-sidebar.is-collapsed .sidebar-title {
+    display: none;
+  }
+  
+  .admin-sidebar.is-collapsed .sidebar-text {
+    display: none;
+  }
+  
+  /* Keep nice spacing when collapsed */
+  .admin-sidebar.is-collapsed .admin-sidebar-inner {
+    padding: 1rem 0.75rem;
+  }
+  
+/* Content */
+.admin-content {
+  min-width: 0; /* prevents overflow issues */
+}
+
+/* ============ SIDEBAR MORENA ============ */
+/* Desktop y offcanvas móvil comparten paleta guinda */
+.sidebar-morena {
+  background: linear-gradient(180deg, #7a0c10 0%, #57080b 100%);
+}
+
+/* Desktop sidebar */
+.admin-sidebar.sidebar-morena {
+  border-right: 3px solid #d4a574;
+}
+
+.sidebar-morena .sidebar-title {
+  color: rgba(255, 255, 255, 0.55) !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
+}
+
+.sidebar-morena .list-group-item {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 2px;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.sidebar-morena .list-group-item i {
+  color: #d4a574;
+}
+
+.sidebar-morena .list-group-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar-morena .list-group-item.active {
+  background: #d4a574;
+  color: #57080b;
+  font-weight: 600;
+}
+
+.sidebar-morena .list-group-item.active i {
+  color: #57080b;
+}
+
+/* Offcanvas móvil */
+.offcanvas.sidebar-morena {
+  background: linear-gradient(180deg, #7a0c10 0%, #57080b 100%);
+  border-right: 3px solid #d4a574;
+}
+
+.offcanvas.sidebar-morena .offcanvas-title {
+  color: #fff;
+}
+
+.offcanvas.sidebar-morena .btn-close {
+  filter: invert(1) grayscale(100%);
+}
+
+.offcanvas.sidebar-morena .list-group-item {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 2px;
+}
+
+.offcanvas.sidebar-morena .list-group-item i {
+  color: #d4a574;
+}
+
+.offcanvas.sidebar-morena .list-group-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.offcanvas.sidebar-morena .list-group-item.active {
+  background: #d4a574;
+  color: #57080b;
+  font-weight: 600;
+}
+
+.offcanvas.sidebar-morena .list-group-item.active i {
+  color: #57080b;
+}
+
+  

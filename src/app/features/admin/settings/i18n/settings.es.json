@@ -1,0 +1,22 @@
+﻿{
+  "title": "Configuración",
+  "subtitle": "Configuraciones del sistema",
+  "reload": "Recargar",
+  "discard": "Descartar cambios",
+  "save": "Guardar",
+  "loading": "Cargando configuración...",
+  "description": "Descripción",
+  "value": "Valor",
+  "section": {
+    "general": "General",
+    "email": "Email",
+    "frontend": "Frontend",
+    "security": "Seguridad"
+  },
+  "notEditable": "No editable desde UI",
+  "empty": "No hay settings para mostrar.",
+  "errorLoad": "Error cargando configuración",
+  "errorSave": "No fue posible guardar los cambios",
+  "successOne": "Se guardó {count} cambio correctamente.",
+  "successMany": "Se guardaron {count} cambios correctamente."
+}

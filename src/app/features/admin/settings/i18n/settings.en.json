@@ -1,0 +1,22 @@
+﻿{
+  "title": "Settings",
+  "subtitle": "System settings",
+  "reload": "Reload",
+  "discard": "Discard changes",
+  "save": "Save",
+  "loading": "Loading settings...",
+  "description": "Description",
+  "value": "Value",
+  "section": {
+    "general": "General",
+    "email": "Email",
+    "frontend": "Frontend",
+    "security": "Security"
+  },
+  "notEditable": "Not editable from UI",
+  "empty": "No settings to display.",
+  "errorLoad": "Error loading settings",
+  "errorSave": "Unable to save changes",
+  "successOne": "{count} change saved successfully.",
+  "successMany": "{count} changes saved successfully."
+}
